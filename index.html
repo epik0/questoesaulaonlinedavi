@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz Interativo SCA — 40 Questões</title>
+  <style>
+    :root {
+      --primary: #881337;
+      --primary-light: #be123c;
+      --bg: #f1f5f9;
+      --card-bg: #ffffff;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border: #cbd5e1;
+      --success-bg: #dcfce7;
+      --success-border: #16a34a;
+      --success-text: #14532d;
+      --error-bg: #fee2e2;
+      --error-border: #dc2626;
+      --error-text: #7f1d1d;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      line-height: 1.6;
+      padding-bottom: 60px;
+    }
+
+    header {
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      color: #fff;
+      padding: 20px 16px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.14);
+    }
+
+    .header-container {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    .header-top {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .header-top h1 {
+      font-size: 1.35rem;
+      font-weight: 700;
+    }
+
+    .scoreboard {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.15);
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .score-pill {
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: rgba(0, 0, 0, 0.22);
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .controls input,
+    .controls select,
+    .controls button {
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: none;
+      font-size: 0.9rem;
+    }
+
+    .controls input {
+      flex: 1 1 220px;
+      background: #fff;
+      color: var(--text-main);
+    }
+
+    .controls select {
+      flex: 1 1 200px;
+      background: #fff;
+      color: var(--text-main);
+      cursor: pointer;
+    }
+
+    .btn-reset {
+      background: #0f172a;
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-reset:hover {
+      background: #334155;
+    }
+
+    main {
+      max-width: 960px;
+      margin: 24px auto 0;
+      padding: 0 16px;
+    }
+
+    .stats-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .question-card {
+      background: var(--card-bg);
+      border-radius: 10px;
+      padding: 22px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+      border: 1px solid var(--border);
+    }
+
+    .question-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .q-number {
+      font-weight: 700;
+      color: var(--primary);
+      font-size: 0.95rem;
+    }
+
+    .q-topic {
+      background: #ffe4e6;
+      color: #881337;
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 999px;
+    }
+
+    .q-text {
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: #0f172a;
+    }
+
+    .options-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .option-btn {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      text-align: left;
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      background: #f8fafc;
+      color: var(--text-main);
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .option-btn:hover:not(:disabled) {
+      border-color: var(--primary-light);
+      background: #fff1f2;
+    }
+
+    .option-btn:disabled {
+      cursor: default;
+    }
+
+    .opt-letter {
+      font-weight: 700;
+      min-width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #e2e8f0;
+      color: #1e293b;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .option-btn.correct {
+      background: var(--success-bg);
+      border-color: var(--success-border);
+      color: var(--success-text);
+      font-weight: 600;
+    }
+
+    .option-btn.correct .opt-letter {
+      background: var(--success-border);
+      color: #fff;
+    }
+
+    .option-btn.wrong {
+      background: var(--error-bg);
+      border-color: var(--error-border);
+      color: var(--error-text);
+    }
+
+    .option-btn.wrong .opt-letter {
+      background: var(--error-border);
+      color: #fff;
+    }
+
+    .feedback-box {
+      margin-top: 16px;
+      padding: 14px 16px;
+      border-radius: 8px;
+      font-size: 0.92rem;
+      display: none;
+    }
+
+    .feedback-box.show {
+      display: block;
+    }
+
+    .feedback-box.is-correct {
+      background: var(--success-bg);
+      border-left: 5px solid var(--success-border);
+      color: var(--success-text);
+    }
+
+    .feedback-box.is-wrong {
+      background: var(--error-bg);
+      border-left: 5px solid var(--error-border);
+      color: var(--error-text);
+    }
+
+    .feedback-title {
+      font-weight: 700;
+      margin-bottom: 6px;
+      font-size: 0.98rem;
+    }
+
+    .feedback-explanation {
+      color: #1e293b;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      background: #fff;
+      border-radius: 10px;
+      color: var(--text-muted);
+      border: 1px dashed var(--border);
+      display: none;
+    }
+
+    @media (max-width: 600px) {
+      .header-top h1 {
+        font-size: 1.15rem;
+      }
+      .question-card {
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-container">
+    <div class="header-top">
+      <h1>Quiz SCA — Síndrome Coronariana Aguda</h1>
+      <div class="scoreboard">
+        <span class="score-pill">Respondidas: <span id="stat-answered">0</span>/40</span>
+        <span class="score-pill" style="background: rgba(22, 163, 74, 0.4);">Acertos: <span id="stat-correct">0</span></span>
+        <span class="score-pill" style="background: rgba(220, 38, 38, 0.4);">Erros: <span id="stat-wrong">0</span></span>
+        <span class="score-pill">Aproveitamento: <span id="stat-percent">0%</span></span>
+      </div>
+    </div>
+    <div class="controls">
+      <input type="text" id="search-input" placeholder="Buscar por palavra-chave (ex: Sgarbossa, 300 mg, HEART, 120 min)...">
+      <select id="topic-filter">
+        <option value="all">Todos os Temas (40 questões)</option>
+      </select>
+      <select id="status-filter">
+        <option value="all">Todas as Questões</option>
+        <option value="unanswered">Não Respondidas</option>
+        <option value="correct">Acertos</option>
+        <option value="wrong">Erros</option>
+      </select>
+      <button type="button" class="btn-reset" id="reset-btn">Reiniciar Quiz</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="stats-bar">
+    <span id="visible-count">Exibindo 40 de 40 questões</span>
+    <span>Nota: O material-base não contém imagens anexas (quiz 100% textual).</span>
+  </div>
+  <div id="quiz-container"></div>
+  <div id="empty-state" class="empty-state">
+    Nenhuma questão encontrada com os filtros selecionados.
+  </div>
+</main>
+
+<script>
+  const questionsData = [
+    {
+      id: 1,
+      topic: "Epidemiologia e Triagem",
+      question: "Qual é a porcentagem aproximada das consultas não traumáticas em pronto-socorro correspondentes à dor torácica, quantos desses casos são SCA e qual é a distribuição entre os subtipos de SCA?",
+      options: {
+        A: "Dor torácica: 20-30% das consultas; 50% são SCA (50% IAMCSST, 30% IAMSSST, 20% Angina Instável).",
+        B: "Dor torácica: 5-10% das consultas; 5-20% são SCA (30% Angina Instável, 34% IAMSSST e 36% IAMCSST).",
+        C: "Dor torácica: 1-2% das consultas; 40% são SCA (60% Angina Instável, 25% IAMSSST e 15% IAMCSST).",
+        D: "Dor torácica: 15-25% das consultas; 5-10% são SCA (10% Angina Instável, 45% IAMSSST e 45% IAMCSST)."
+      },
+      answer: "B",
+      explanation: "A dor torácica corresponde a 5-10% das consultas não traumáticas em pronto-socorro, e 5-20% desses casos são SCA, distribuída aproximadamente em 30% Angina Instável, 34% IAMSSST e 36% IAMCSST."
+    },
+    {
+      id: 2,
+      topic: "Epidemiologia e Triagem",
+      question: "Como a dor torácica suspeita de Síndrome Coronariana Aguda é classificada no Protocolo de Manchester e qual meta de tempo isso assegura?",
+      options: {
+        A: "Amarelo ou verde, garantindo atendimento médico em até 60 minutos e ECG em até 30 minutos.",
+        B: "Laranja ou vermelho, garantindo atendimento e realização de ECG de 12 derivações em até 10 minutos.",
+        C: "Vermelho exclusivamente, garantindo cateterismo cardíaco em até 10 minutos.",
+        D: "Azul ou verde, aguardando o resultado da primeira troponina para realizar o ECG."
+      },
+      answer: "B",
+      explanation: "No Protocolo de Manchester, a dor torácica suspeita é classificada como laranja ou vermelho, garantindo atendimento e ECG de 12 derivações em até 10 minutos."
+    },
+    {
+      id: 3,
+      topic: "Tempos-Meta e Logística",
+      question: "Qual a diferença conceitual entre 'Porta' (SBC) e 'Primeiro Contato Médico - FMC' (AHA/ESC)?",
+      options: {
+        A: "'Porta' é o início da infusão do fibrinolítico; 'FMC' é a entrada na sala de hemodinâmica.",
+        B: "'Porta' é o momento físico de entrada do paciente na unidade de saúde; 'FMC' é o momento da abordagem por profissional de saúde treinado (médico, enfermeiro, socorrista) capaz de obter e interpretar o ECG, inclusive no pré-hospitalar (ex.: SAMU).",
+        C: "'Porta' aplica-se apenas a hospitais terciários; 'FMC' aplica-se apenas a UPAs sem hemodinâmica.",
+        D: "Ambos significam exatamente o horário em que o cardiologista assina o laudo do ECG."
+      },
+      answer: "B",
+      explanation: "'Porta' (SBC) é o momento físico de entrada na unidade de saúde, enquanto 'Primeiro Contato Médico - FMC' (AHA/ESC) é o momento da abordagem por profissional treinado capaz de obter e interpretar o ECG, podendo ocorrer no pré-hospitalar."
+    },
+    {
+      id: 4,
+      topic: "Tempos-Meta e Logística",
+      question: "Assinale a alternativa que apresenta corretamente as metas de tempo na SCA: (1) Porta-ECG / FMC-ECG, (2) ICP Primária sem transferência, (3) ICP Primária com transferência e (4) Terapia Fibrinolítica (Porta-Agulha / Diagnóstico-Agulha):",
+      options: {
+        A: "(1) ≤ 30 min; (2) ≤ 120 min; (3) ≤ 180 min; (4) ≤ 60 min.",
+        B: "(1) ≤ 10 min; (2) ≤ 90 min (SBC/AHA) ou ≤ 60-90 min do Diagnóstico (ESC); (3) ≤ 120 min; (4) ≤ 30 min da porta (SBC/AHA) ou ≤ 10 min do Diagnóstico (ESC).",
+        C: "(1) ≤ 15 min; (2) ≤ 60 min; (3) ≤ 90 min; (4) ≤ 45 min.",
+        D: "(1) ≤ 5 min; (2) ≤ 120 min; (3) ≤ 240 min; (4) ≤ 15 min."
+      },
+      answer: "B",
+      explanation: "As metas são: Porta-ECG/FMC-ECG ≤ 10 min; ICP Primária sem transferência ≤ 90 min (SBC/AHA) ou ≤ 60-90 min do Diagnóstico (ESC); ICP Primária com transferência ≤ 120 min; e Fibrinólise ≤ 30 min da chegada/porta (SBC/AHA) ou ≤ 10 min do Diagnóstico (ESC)."
+    },
+    {
+      id: 5,
+      topic: "Tempos-Meta e Logística",
+      question: "Qual é a Regra de Ouro no IAMCSST em relação ao resultado da troponina e qual é o tempo limite de decisão para preferir a ICP à fibrinólise?",
+      options: {
+        A: "Deve-se sempre aguardar a troponina de 3h antes de reperfundir; preferir ICP se viável em até 180 min.",
+        B: "Diante de quadro clínico sugestivo + padrão eletrocardiográfico de oclusão (supra de ST ou equivalentes), NÃO se deve esperar o resultado da troponina para iniciar a reperfusão; prefere-se a fibrinólise se a ICP for inviável em ≤ 120 minutos.",
+        C: "Aguarda-se a troponina apenas se o supra de ST for < 2 mm; preferir fibrinólise se ICP > 60 min.",
+        D: "A troponina define a dose do fibrinolítico; preferir ICP sempre, mesmo que leve 4 horas."
+      },
+      answer: "B",
+      explanation: "Pela Regra de Ouro no IAMCSST, com clínica sugestiva e padrão eletrocardiográfico de oclusão, não se espera o resultado da troponina para reperfundir. A fibrinólise é indicada quando a ICP é inviável em ≤ 120 minutos."
+    },
+    {
+      id: 6,
+      topic: "Eletrocardiograma (ECG)",
+      question: "Qual é a sensibilidade de um único ECG isolado na SCA, como os ECGs seriados modificam essa acurácia e quais derivações complementares devem ser solicitadas na suspeita persistente?",
+      options: {
+        A: "ECG isolado tem 95% de sensibilidade; derivações complementares são V1R e V2R.",
+        B: "ECG isolado tem sensibilidade baixa (~50%); ECGs seriados (a cada 10-30 min na vigência de dor) elevam a acurácia para 70-90%; deve-se realizar V3R e V4R (avaliação de VD) e V7, V8 e V9 (parede inferolateral/posterior).",
+        C: "ECG isolado tem 80% de sensibilidade; ECGs seriados devem ser feitos apenas a cada 6 horas.",
+        D: "Um ECG normal exclui definitivamente SCA; não há necessidade de derivações posteriores."
+      },
+      answer: "B",
+      explanation: "Um ECG isolado tem sensibilidade de ~50%, mas ECGs seriados (a cada 10-30 min) elevam a acurácia para 70-90%. Na suspeita persistente com ECG inicial não diagnóstico, realizam-se V3R e V4R (VD) e V7, V8 e V9 (parede inferolateral/posterior). Um ECG normal não exclui SCA."
+    },
+    {
+      id: 7,
+      topic: "Eletrocardiograma (ECG)",
+      question: "Como se identifica o Ponto J e como se calcula corretamente a magnitude do desnivelamento do segmento ST no ECG?",
+      options: {
+        A: "Traça-se linha de base no pico da onda R; o Ponto J fica entre a onda P e o complexo QRS.",
+        B: "Traça-se linha de base imaginária ao longo do final do segmento PR; localiza-se o Ponto J (entre o término do complexo QRS e o início do segmento ST); a diferença milimétrica entre a linha do segmento PR e a linha no Ponto J define o supra ou infradesnivelamento.",
+        C: "Mede-se a diferença entre o final da onda T e o início da onda P seguinte.",
+        D: "Traça-se a linha de base no segmento TP e mede-se o desnivelamento no meio da onda T."
+      },
+      answer: "B",
+      explanation: "Para avaliar o Ponto J: (1) identifica-se a linha de base ao longo do final do segmento PR; (2) localiza-se o Ponto J entre o término do QRS e o início do segmento ST; a diferença milimétrica entre essas duas linhas define a magnitude do desnivelamento."
+    },
+    {
+      id: 8,
+      topic: "Eletrocardiograma (ECG)",
+      question: "Quais são os critérios de corte eletrocardiográficos para Supradesnivelamento do ST (IAMCSST) em pelo menos duas derivações contíguas?",
+      options: {
+        A: "≥ 2 mm em todas as derivações para ambos os sexos e qualquer idade.",
+        B: "Derivações gerais: ≥ 1 mm; V2 e V3 em homens < 40 anos: ≥ 2,5 mm; V2 e V3 em homens ≥ 40 anos: ≥ 2,0 mm; V2 e V3 em mulheres (qualquer idade): ≥ 1,5 mm.",
+        C: "Derivações gerais: ≥ 0,5 mm; V2 e V3: ≥ 1,0 mm em homens e ≥ 0,5 mm em mulheres.",
+        D: "Derivações gerais: ≥ 1,5 mm; V2 e V3: ≥ 3,0 mm em homens e ≥ 2,5 mm em mulheres."
+      },
+      answer: "B",
+      explanation: "Os pontos de corte para supra de ST em ≥ 2 derivações contíguas são: derivações gerais ≥ 1 mm (0,1 mV); V2-V3 em homens < 40 anos ≥ 2,5 mm; V2-V3 em homens ≥ 40 anos ≥ 2,0 mm; e V2-V3 em mulheres de qualquer idade ≥ 1,5 mm."
+    },
+    {
+      id: 9,
+      topic: "Eletrocardiograma (ECG)",
+      question: "Qual é o critério eletrocardiográfico para confirmar IAM posterior nas derivações V7-V9 e o que caracteriza o Padrão de de Winter (equivalente de STEMI)?",
+      options: {
+        A: "Em V7-V9 exige-se supra ≥ 2 mm em todas as três derivações; de Winter é supra de ST com onda T invertida.",
+        B: "Em V7-V9, elevação ≥ 0,5 mm em apenas uma derivação já confirma o diagnóstico; o Padrão de de Winter consiste em infra de ST + ondas T simétricas, proeminentes e hiperagudas nas derivações anteriores.",
+        C: "Em V7-V9 exige-se infra de ST ≥ 1 mm; de Winter ocorre exclusivamente em DII, DIII e aVF.",
+        D: "Em V7-V9 exige-se onda Q patológica; de Winter é caracterizado por bloqueio AV total."
+      },
+      answer: "B",
+      explanation: "Nos equivalentes de STEMI: o infra de ST em V1-V3 corresponde a supra posterior, e em V7-V9 uma elevação ≥ 0,5 mm em apenas uma derivação já confirma o diagnóstico. O Padrão de de Winter apresenta infra de ST + ondas T simétricas, proeminentes e hiperagudas nas derivações anteriores."
+    },
+    {
+      id: 10,
+      topic: "Eletrocardiograma (ECG)",
+      question: "Sobre os Critérios de Sgarbossa e Sgarbossa Modificado para diagnóstico de oclusão coronariana aguda na presença de Bloqueio de Ramo Esquerdo (BRE), assinale a alternativa correta:",
+      options: {
+        A: "Sgarbossa clássico: elevação de ST ≥ 1 mm concordante com QRS (5 pontos) e depressão de ST ≥ 1 mm em V1, V2 ou V3 (3 pontos). Sgarbossa Modificado: razão Supra de ST / Onda S ≤ -0,25 (ex.: -0,26 é positivo).",
+        B: "Sgarbossa clássico exige apenas onda T invertida em V5-V6; Sgarbossa Modificado exige razão ST/S ≥ +0,50.",
+        C: "Sgarbossa aplica-se apenas ao Bloqueio de Ramo Direito (BRD) com QRS < 120 ms.",
+        D: "Sgarbossa Modificado considera positivo qualquer valor de razão ST/S entre 0 e -0,10."
+      },
+      answer: "A",
+      explanation: "Nos Critérios de Sgarbossa para BRE: elevação de ST ≥ 1 mm concordante com a polaridade do QRS vale 5 pontos, e depressão de ST ≥ 1 mm em V1, V2 ou V3 vale 3 pontos. No Sgarbossa Modificado, a razão (Supra de ST / Onda S) ≤ -0,25 (ex.: -0,26) indica oclusão aguda."
+    },
+    {
+      id: 11,
+      topic: "Classificação do IAM e Clínica",
+      question: "Qual a diferença fisiopatológica e terapêutica fundamental entre o IAM Tipo 1 e o IAM Tipo 2?",
+      options: {
+        A: "IAM Tipo 1 ocorre por anemia grave; IAM Tipo 2 ocorre por ruptura de placa aterosclerótica.",
+        B: "IAM Tipo 1 é causado por aterotrombose coronariana primária (ruptura/erosão de placa), dissecção espontânea, embolia ou vasoespasmo; IAM Tipo 2 decorre de desequilíbrio entre oferta e demanda de O2 sem trombose aguda (ex.: anemia severa, choque, hipoxemia, taquiarritmias), devendo-se focar no tratamento da causa subjacente e não na terapia antitrombótica intensiva.",
+        C: "IAM Tipo 1 ocorre em até 30 dias após cirurgia cardíaca; IAM Tipo 2 não eleva troponina.",
+        D: "Ambos devem ser tratados imediatamente com terapia fibrinolítica em dose plena."
+      },
+      answer: "B",
+      explanation: "O IAM Tipo 1 resulta de aterotrombose primária, dissecção espontânea, embolia ou vasoespasmo. O IAM Tipo 2 decorre de desequilíbrio oferta/demanda de O2 sem trombose aguda, sendo o foco tratar a causa subjacente e não a terapia antitrombótica intensiva."
+    },
+    {
+      id: 12,
+      topic: "Classificação do IAM e Clínica",
+      question: "Como se define o IAM Relacionado a Procedimentos?",
+      options: {
+        A: "Qualquer dor torácica ocorrida durante a realização de um eletrocardiograma de esforço.",
+        B: "Sinais, sintomas e elevação de troponina compatíveis com SCA em até 30 dias após procedimentos cardíacos intervencionistas ou cirúrgicos.",
+        C: "Elevação isolada de troponina após 6 meses de cirurgia não cardíaca.",
+        D: "Angina estável que surge 1 ano após implante de stent farmacológico."
+      },
+      answer: "B",
+      explanation: "O IAM Relacionado a Procedimentos é definido por sinais, sintomas e elevação de troponina compatíveis com SCA em até 30 dias após procedimentos cardíacos intervencionistas ou cirúrgicos."
+    },
+    {
+      id: 13,
+      topic: "Classificação do IAM e Clínica",
+      question: "Sobre as características clínicas da dor anginosa típica na SCA, qual afirmação está correta?",
+      options: {
+        A: "Dores efêmeras (alguns segundos) ou contínuas por vários dias aumentam muito a probabilidade de SCA.",
+        B: "Crises < 10 minutos sugerem angina estável, enquanto dores > 10 minutos sugerem SCA; dor que altera com postura, movimentação do tórax ou respiração não costuma ter origem coronariana.",
+        C: "A dor típica nunca irradia para epigástrio, mandíbula ou região interescapular.",
+        D: "A qualidade típica é em pontada bem localizada com a ponta de um dedo."
+      },
+      answer: "B",
+      explanation: "A dor anginosa típica é retroesternal/precordial em aperto, pressão, peso ou queimação, podendo irradiar para mandíbula, pescoço, epigástrio, região interescapular e MMSS. Crises > 10 min sugerem SCA (< 10 min: angina estável), enquanto dores efêmeras, de dias contínuos ou que mudam com postura/respiração reduzem a chance de origem coronariana."
+    },
+    {
+      id: 14,
+      topic: "Classificação do IAM e Clínica",
+      question: "Em que porcentagem dos casos de SCA ocorrem os equivalentes isquêmicos atípicos, quais são eles e quais grupos apresentam alto risco para apresentação atípica?",
+      options: {
+        A: "Ocorrem em 1-2% dos casos; grupos de risco são jovens < 30 anos e atletas.",
+        B: "Ocorrem em 10-30% dos casos (dispneia isolada, epigastralgia, náuseas, síncope, confusão mental, edema agudo de pulmão); grupos de risco: idade > 50 anos, diabéticos e portadores de doença cardiovascular prévia.",
+        C: "Ocorrem em 60% dos casos; grupos de risco são exclusivamente gestantes e hipertensos.",
+        D: "Ocorrem em 5% dos casos e manifestam-se apenas como febre e tosse produtiva."
+      },
+      answer: "B",
+      explanation: "Equivalentes isquêmicos atípicos estão presentes em 10-30% dos casos (dispneia isolada, epigastralgia, náuseas, síncope, confusão mental, EAP), sendo mais frequentes em pessoas com > 50 anos, diabéticos e portadores de DCV prévia."
+    },
+    {
+      id: 15,
+      topic: "Biomarcadores e Troponina",
+      question: "Qual é o critério diagnóstico que diferencia a Angina Instável do IAM sem Supradesnivelamento de ST (IAMSSST)?",
+      options: {
+        A: "Na Angina Instável há supra de ST transitório; no IAMSSST há bloqueio de ramo esquerdo.",
+        B: "Ambos cursam com clínica sugestiva e ECG sem elevação de ST, mas na Angina Instável a troponina é NEGATIVA, enquanto no IAMSSST a troponina é POSITIVA (injúria miocárdica presente).",
+        C: "Na Angina Instável a dor dura mais de 6 horas; no IAMSSST dura menos de 5 minutos.",
+        D: "No IAMSSST a troponina é sempre negativa nas primeiras 24 horas."
+      },
+      answer: "B",
+      explanation: "Tanto a Angina Instável quanto o IAMSSST apresentam clínica sugestiva e ECG sem supradesnivelamento de ST; a diferença é que na Angina Instável a troponina é negativa e no IAMSSST ela é positiva."
+    },
+    {
+      id: 16,
+      topic: "Biomarcadores e Troponina",
+      question: "Como se interpreta a variação seriada da troponina (regra do Delta) e quais condições não isquêmicas também podem elevar esse biomarcador?",
+      options: {
+        A: "∆ Troponina > 5% confirma IAM; eleva-se apenas na trombose coronariana.",
+        B: "Um valor acima do percentil 99 em contexto clínico adequado ou ∆ Troponina > 20% indica IAM; ∆ Troponina < 20% acima do limite indica lesão miocárdica crônica. Outras causas de elevação: sepse, insuficiência renal e miocardite.",
+        C: "∆ Troponina < 20% confirma IAM agudo; ∆ > 50% indica lesão crônica estável.",
+        D: "A troponina nunca se eleva na insuficiência renal ou na sepse."
+      },
+      answer: "B",
+      explanation: "Na interpretação da troponina: valor > percentil 99 em contexto adequado ou ∆ > 20% indica IAM; ∆ < 20% acima do limite sugere lesão miocárdica crônica. Sepse, insuficiência renal e miocardite também podem elevar a troponina."
+    },
+    {
+      id: 17,
+      topic: "Biomarcadores e Troponina",
+      question: "Como funciona o protocolo de rotina de coleta de troponina convencional em Unidades de Pronto Atendimento (UPA)?",
+      options: {
+        A: "Coleta única na admissão (0h) e alta imediata se negativa, independentemente da clínica.",
+        B: "Coleta na admissão (0h), repetida em 3 a 6 horas, mantendo o paciente em observação por 6 a 12 horas.",
+        C: "Coleta apenas após 12 horas do início da dor torácica.",
+        D: "Coleta seriada a cada 30 minutos durante 4 horas."
+      },
+      answer: "B",
+      explanation: "Na rotina em UPA com troponina convencional, realiza-se a coleta na admissão (0h), repete-se em 3 a 6 horas e mantém-se observação por 6 a 12 horas."
+    },
+    {
+      id: 18,
+      topic: "Escores de Risco",
+      question: "Qual é o momento de aplicação e a finalidade específica dos escores HEART, GRACE, TIMI e CRUSADE na SCA?",
+      options: {
+        A: "HEART: pós-IAM para sangramento; GRACE: admissão da dor torácica; CRUSADE: mortalidade em 6 meses.",
+        B: "HEART: usado na admissão da dor torácica; GRACE: usado após diagnóstico de IAM para estimar mortalidade intra-hospitalar e em 6 meses (definindo urgência invasiva); TIMI: estimativa alternativa de risco e eventos adversos pós-IAM; CRUSADE: estimar risco de sangramento no tratamento antitrombótico.",
+        C: "GRACE: usado para decidir dose de AAS; CRUSADE: usado para diagnosticar IAM posterior.",
+        D: "TIMI e CRUSADE são usados exclusivamente antes da realização do primeiro ECG."
+      },
+      answer: "B",
+      explanation: "HEART avalia risco na admissão da dor torácica; GRACE estima mortalidade intra-hospitalar e em 6 meses pós-IAM (guiando urgência invasiva); TIMI estima risco/eventos adversos pós-IAM; e CRUSADE estima o risco de sangramento com o tratamento antitrombótico."
+    },
+    {
+      id: 19,
+      topic: "Escores de Risco",
+      question: "Quais são os 5 parâmetros avaliados no Escore HEART e como se interpreta sua pontuação?",
+      options: {
+        A: "Parâmetros: História, ECG, Idade, Fatores de Risco e Troponina. Interpretação: 0-3 pontos (Baixo risco: alta segura se troponina negativa, ECG sem isquemia e sem DAC prévia); 4-6 pontos (Intermediário: Internação); 7-10 pontos (Alto risco: Internação).",
+        B: "Parâmetros: Hematócrito, Creatinina, FC, PAS e Killip. Interpretação: 0-5 pontos (Alta); 6-10 (Internação).",
+        C: "Parâmetros: História, Ecocardiograma, Angiotomografia, Raio-X e Troponina. Interpretação: 0-2 pontos (Baixo risco).",
+        D: "Parâmetros: Idade, Sexo, Peso, Glicemia e Troponina. Interpretação: 0-4 pontos (Alta segura mesmo com troponina positiva)."
+      },
+      answer: "A",
+      explanation: "O escore HEART avalia História, ECG, Idade, Fatores de Risco e Troponina. Pontuação 0-3: baixo risco (alta segura se troponina negativa, ECG sem isquemia e sem DAC prévia); 4-6: risco intermediário (internação); 7-10: alto risco (internação)."
+    },
+    {
+      id: 20,
+      topic: "Escores de Risco",
+      question: "Quais variáveis laboratoriais específicas são destacadas no material como componentes do Escore CRUSADE?",
+      options: {
+        A: "Troponina ultrassensível e peptídeo natriurético (BNP).",
+        B: "Hematócrito e depuração de creatinina.",
+        C: "Sódio sérico e potássio plasmático.",
+        D: "Tempo de protrombina (INR) e fibrinogênio."
+      },
+      answer: "B",
+      explanation: "O escore CRUSADE estima o risco de sangramento no tratamento antitrombótico e utiliza parâmetros como hematócrito e depuração de creatinina."
+    },
+    {
+      id: 21,
+      topic: "Estratificação e Tempo Invasivo na SCASSST",
+      question: "Quais critérios definem instabilidade (Muito Alto Risco) na SCASSST e qual é o tempo máximo para a estratégia invasiva nesse grupo?",
+      options: {
+        A: "Critérios: dor que melhorou com nitrato e troponina levemente elevada; Estratégia invasiva em < 72 horas.",
+        B: "Critérios: dor torácica refratária/persistente, instabilidade hemodinâmica ou choque cardiogênico, arritmias ventriculares graves ou bradiarritmias ameaçadoras, insuficiência cardíaca aguda/congestão pulmonar, ou ECG com alterações dinâmicas do ST/limítrofes recorrentes. Conduta: Estratégia Invasiva Imediata (< 2 horas).",
+        C: "Critérios: escore HEART de 4 pontos; Conduta: Estratégia Invasiva em < 24 horas.",
+        D: "Critérios: idade > 75 anos isolada; Conduta: Terapia fibrinolítica em < 30 minutos."
+      },
+      answer: "B",
+      explanation: "Na SCASSST, os critérios de Muito Alto Risco (instabilidade) exigem Estratégia Invasiva Imediata (< 2 horas)."
+    },
+    {
+      id: 22,
+      topic: "Estratificação e Tempo Invasivo na SCASSST",
+      question: "Qual é o prazo da Estratégia Invasiva Precoce (Alto Risco) e da Estratégia Invasiva Seletiva/Retardada (Risco Intermediário ou Baixo) na SCASSST?",
+      options: {
+        A: "Alto Risco (GRACE > 140, oscilações dinâmicas do ST, elevação marcante de troponina): < 24 horas; Risco Intermediário/Baixo: 24 a 72 horas ou pré-alta.",
+        B: "Alto Risco: < 2 horas; Risco Intermediário/Baixo: < 6 horas.",
+        C: "Alto Risco: 48 a 72 horas; Risco Intermediário/Baixo: após 30 dias em ambulatório.",
+        D: "Alto Risco: < 12 horas; Risco Intermediário/Baixo: nunca devem realizar cateterismo."
+      },
+      answer: "A",
+      explanation: "Na SCASSST: Muito Alto Risco → < 2 horas; Alto Risco (GRACE > 140, oscilações dinâmicas de ST, elevação marcante de troponina) → Estratégia Invasiva Precoce (< 24 horas); Risco Intermediário ou Baixo → Estratégia Invasiva Seletiva/Retardada (24 a 72 horas ou pré-alta)."
+    },
+    {
+      id: 23,
+      topic: "Manejo Farmacológico Integrado",
+      question: "Quais são os quatro pilares do manejo farmacológico integrado da Síndrome Coronariana Aguda?",
+      options: {
+        A: "1. Oxigenoterapia de rotina; 2. AINEs venosos; 3. Hipoglicemia permissiva; 4. Fibrinólise universal.",
+        B: "1. Oxigenoterapia (somente se SaO2 < 90%); 2. Analgesia e Sedação (Nitratos e Betabloqueadores; cautela com Morfina/Fentanil; AINEs contraindicados); 3. Controle Glicêmico (70 a 180 mg/dL); 4. Terapia Anti-isquêmica, Antiagregante e Anticoagulante (DAPT + Enoxaparina + Estatina).",
+        C: "1. Hidratação vigorosa; 2. Corticoides; 3. Antibioticoterapia profilática; 4. Varfarina.",
+        D: "1. Oxigênio a 100% para todos; 2. Morfina de horário; 3. Glicemia < 100 mg/dL; 4. AAS isolado."
+      },
+      answer: "B",
+      explanation: "Os 4 pilares são: (1) Oxigenoterapia apenas se SaO2 < 90%; (2) Analgesia e Sedação; (3) Controle Glicêmico entre 70 e 180 mg/dL; e (4) Terapia Anti-isquêmica, Antiagregante e Anticoagulante (DAPT + Enoxaparina + Estatina)."
+    },
+    {
+      id: 24,
+      topic: "Manejo Farmacológico Integrado",
+      question: "Por que a oxigenoterapia suplementar NÃO deve ser administrada rotineiramente a pacientes com SCA normóxicos (SaO2 ≥ 90%) e quando indicar VNI ou IOT?",
+      options: {
+        A: "Porque o oxigênio causa broncoespasmo grave; VNI é indicada no choque e IOT na dor leve.",
+        B: "Porque a hiperóxia em pacientes normóxicos causa vasoconstrição coronariana e aumenta espécies reativas de oxigênio (EROs), ampliando a lesão miocárdica. Indica-se O2 se SaO2 < 90%, desconforto respiratório, cianose ou congestão; VNI na congestão/hipoxemia; IOT no choque circulatório, falha da VNI ou instabilidade severa durante transferência.",
+        C: "Porque o oxigênio inativa o efeito antiagregante do AAS e do Clopidogrel.",
+        D: "A oxigenoterapia a 15 L/min deve ser usada em todos os pacientes na primeira hora."
+      },
+      answer: "B",
+      explanation: "A hiperóxia em normóxicos provoca vasoconstrição coronariana e aumento de radicais livres (EROs), agravando a lesão miocárdica. Usa-se O2 apenas se SaO2 < 90% (ou desconforto respiratório/cianose/congestão), VNI na congestão e hipoxemia, e IOT no choque circulatório, falha de VNI ou instabilidade grave na transferência."
+    },
+    {
+      id: 25,
+      topic: "Manejo Farmacológico Integrado",
+      question: "Quando se deve iniciar betabloqueadores (Metoprolol, Atenolol) na SCA e quais são suas contraindicações absolutas/relativas destacadas no protocolo?",
+      options: {
+        A: "Iniciar IV em bólus imediatamente na admissão de pacientes chocados; contraindicado apenas na hipertensão.",
+        B: "Iniciar por via oral (VO) nas primeiras 24h em pacientes estáveis. Contraindicações: insuficiência cardíaca, baixo débito, risco de choque cardiogênico (idade > 70 anos, FC > 110 bpm, PAS < 120 mmHg), BAVs e vasoespasmo por cocaína.",
+        C: "Iniciar após 7 dias de internação; contraindicado em diabéticos e idosos > 60 anos.",
+        D: "Iniciar VO apenas se o paciente tiver BAV de 2º grau ou vasoespasmo por cocaína."
+      },
+      answer: "B",
+      explanation: "Betabloqueadores devem ser iniciados VO nas primeiras 24h em pacientes estáveis, sendo contraindicados na insuficiência cardíaca, baixo débito, risco de choque cardiogênico (idade > 70 anos, FC > 110 bpm, PAS < 120 mmHg), BAVs e vasoespasmo induzido por cocaína."
+    },
+    {
+      id: 26,
+      topic: "Manejo Farmacológico Integrado",
+      question: "Quais são as principais indicações e contraindicações para o uso de nitratos (Nitroglicerina, Isossorbida, Nitroprussiato) na SCA?",
+      options: {
+        A: "Indicação: Infarto de Ventrículo Direito; Contraindicação: Hipertensão arterial.",
+        B: "Indicação: Hipertensão + congestão pulmonar. Contraindicações: hipotensão (PAS < 90 mmHg ou queda > 30 mmHg do basal), suspeita de Infarto de VD, choque cardiogênico e uso recente de inibidores da PDE-5 (ex.: sildenafil).",
+        C: "Indicação: Choque cardiogênico; Contraindicação: Edema agudo de pulmão hipertensivo.",
+        D: "Indicação: Qualquer dor torácica mesmo com PAS de 75 mmHg; Contraindicação: Diabetes."
+      },
+      answer: "B",
+      explanation: "Os nitratos são especialmente indicados na hipertensão associada à congestão pulmonar, mas são contraindicados na hipotensão (PAS < 90 mmHg ou queda > 30 mmHg do basal), suspeita de Infarto de VD, choque cardiogênico e uso recente de inibidores da PDE-5 (ex.: sildenafil)."
+    },
+    {
+      id: 27,
+      topic: "Manejo Farmacológico Integrado",
+      question: "Qual é a recomendação quanto ao uso de opioides (Morfina/Fentanil) e anti-inflamatórios não esteroidais (AINEs) na SCA?",
+      options: {
+        A: "Morfina é 1ª escolha para toda dor leve; AINEs (como ibuprofeno e diclofenaco) são recomendados como adjuvantes.",
+        B: "Morfina e Fentanil são reservados estritamente para dor intensa e refratária; AINEs (exceto AAS) são estritamente contraindicados (Classe III) por aumentarem mortalidade, eventos cardiovasculares, pressão arterial, lesão renal aguda e hiperviscosidade sanguínea.",
+        C: "AINEs devem substituir o AAS em pacientes com gastrite.",
+        D: "Fentanil deve ser evitado e substituído por cetoprofeno endovenoso."
+      },
+      answer: "B",
+      explanation: "Morfina e Fentanil ficam reservados estritamente para dor intensa e refratária. Já os AINEs (exceto AAS) são estritamente contraindicados (Classe III) por aumentarem mortalidade, eventos cardiovasculares, PA, lesão renal aguda e hiperviscosidade sanguínea."
+    },
+    {
+      id: 28,
+      topic: "Manejo Farmacológico Integrado",
+      question: "Qual é a meta glicêmica preconizada no Pilar 3 do manejo da SCA?",
+      options: {
+        A: "Entre 50 e 110 mg/dL.",
+        B: "Entre 70 e 180 mg/dL (evitando hiperglicemia > 180 mg/dL e hipoglicemia < 70 mg/dL).",
+        C: "Entre 140 e 250 mg/dL.",
+        D: "Abaixo de 90 mg/dL em todos os pacientes."
+      },
+      answer: "B",
+      explanation: "A meta do controle glicêmico na SCA é manter os níveis entre 70 e 180 mg/dL, evitando tanto a hiperglicemia (> 180 mg/dL) quanto a hipoglicemia (< 70 mg/dL)."
+    },
+    {
+      id: 29,
+      topic: "Antiagregação e Terapias Adjuvantes",
+      question: "Assinale a alternativa correta sobre o esquema de Dupla Antiagregação Plaquetária (DAPT) com AAS e Clopidogrel na SCA:",
+      options: {
+        A: "AAS: 100 mg de ataque deglutido inteiro; Clopidogrel: 600 mg de ataque em pacientes ≥ 75 anos submetidos à fibrinólise.",
+        B: "AAS: ataque de 300 mg (obrigatoriamente mastigado) na admissão e manutenção de 75-100 mg/dia; Clopidogrel: ataque de 300 mg (ou 600 mg para ICP sem fibrinólise), sendo que na fibrinólise faz-se 300 mg se idade < 75 anos e 75 mg (sem ataque) se idade ≥ 75 anos, mantendo 75 mg/dia por 12 meses.",
+        C: "AAS: 500 mg IV; Clopidogrel: 150 mg/dia por apenas 30 dias.",
+        D: "O Clopidogrel não necessita de dose de ataque em nenhuma situação clínica."
+      },
+      answer: "B",
+      explanation: "Na DAPT: AAS 300 mg mastigado no ataque + 75-100 mg/dia de manutenção. Clopidogrel: 300 mg (ou 600 mg na ICP sem fibrinólise); na fibrinólise, usa-se 300 mg se < 75 anos e apenas 75 mg (sem dose de ataque) se ≥ 75 anos, seguido de 75 mg/dia por 12 meses."
+    },
+    {
+      id: 30,
+      topic: "Antiagregação e Terapias Adjuvantes",
+      question: "Qual inibidor de bomba de prótons (IBP) deve ser evitado em pacientes em uso de Clopidogrel e qual é o motivo farmacológico?",
+      options: {
+        A: "Evitar Pantoprazol, pois bloqueia a absorção intestinal do AAS.",
+        B: "Evitar Omeprazol, por competição no citocromo P450 que reduz a eficácia do Clopidogrel; deve-se preferir Pantoprazol ou Ranitidina.",
+        C: "Evitar Ranitidina, pois causa trombose intra-stent imediata.",
+        D: "Todos os IBPs são contraindicados na SCA por aumentarem o risco de infarto."
+      },
+      answer: "B",
+      explanation: "Para proteção gástrica durante a DAPT, deve-se preferir Pantoprazol ou Ranitidina e evitar Omeprazol, pois este compete no citocromo P450 e reduz a ativação/eficácia do Clopidogrel."
+    },
+    {
+      id: 31,
+      topic: "Antiagregação e Terapias Adjuvantes",
+      question: "Sobre o uso de Estatinas, iECA/BRA e Antagonistas da Aldosterona (Espironolactona) na SCA, assinale a alternativa correta:",
+      options: {
+        A: "Estatinas de baixa potência são indicadas apenas se LDL > 190 mg/dL; Espironolactona é indicada para todos os pacientes.",
+        B: "Estatinas de alta potência (Atorvastatina, Rosuvastatina) são indicadas para todos os pacientes na admissão; iECA ou BRA para todos (especialmente disfunção sistólica do VE ou alto risco); Espironolactona é indicada para FEVE < 40%, sintomas de IC ou Diabetes Mellitus.",
+        C: "iECA/BRA são contraindicados na disfunção sistólica do VE.",
+        D: "Espironolactona é indicada apenas quando FEVE > 60%."
+      },
+      answer: "B",
+      explanation: "Estatinas de alta potência (Atorvastatina, Rosuvastatina) são indicadas para todos na admissão; iECA ou BRA para todos (especialmente disfunção sistólica de VE ou alto risco); e antagonistas da aldosterona (Espironolactona) quando há FEVE < 40%, sintomas de IC ou Diabetes Mellitus."
+    },
+    {
+      id: 32,
+      topic: "Reperfusão no IAMCSST",
+      question: "Quais são os critérios clínicos e eletrocardiográficos utilizados entre 60 e 90 minutos após a terapia fibrinolítica para avaliar se houve reperfusão eficaz?",
+      options: {
+        A: "Queda da troponina em 90% e normalização imediata da pressão arterial.",
+        B: "Alívio substancial da dor e redução do supradesnivelamento de ST > 50%.",
+        C: "Aumento do supradesnivelamento de ST > 50% e surgimento de ritmo idioventricular lento.",
+        D: "Desaparecimento completo de todas as ondas Q patológicas em até 30 minutos."
+      },
+      answer: "B",
+      explanation: "Entre 60 e 90 minutos após a fibrinólise, avalia-se a reperfusão pelo alívio substancial da dor e pela redução do supradesnivelamento de ST > 50%."
+    },
+    {
+      id: 33,
+      topic: "Reperfusão no IAMCSST",
+      question: "Após a avaliação pós-fibrinólise (60-90 min), qual é a conduta se houver sucesso na reperfusão versus se houver falha de reperfusão?",
+      options: {
+        A: "Sucesso: alta hospitalar em 24h sem cateterismo; Falha: repetir a mesma dose do fibrinolítico.",
+        B: "Se reperfusão eficaz: realizar cateterismo de rotina em 12 a 24 horas (Estratégia Farmacoinvasiva). Se falha de reperfusão: encaminhar imediatamente para ICP de Resgate.",
+        C: "Sucesso: cateterismo imediato em < 30 min; Falha: aguardar 48 horas para cateterismo eletivo.",
+        D: "Em ambos os casos deve-se aguardar 7 dias para realizar teste ergométrico."
+      },
+      answer: "B",
+      explanation: "Se a fibrinólise for eficaz, o paciente deve realizar cateterismo de rotina em 12 a 24 horas (Estratégia Farmacoinvasiva). Se houver falha de reperfusão, deve ser encaminhado imediatamente para ICP de Resgate."
+    },
+    {
+      id: 34,
+      topic: "Reperfusão no IAMCSST",
+      question: "Qual é a conduta invasiva recomendada no IAMCSST tardio (> 12 horas do início dos sintomas), diferenciando o intervalo de 12-24h do período > 24h?",
+      options: {
+        A: "Entre 12 e 24h: realizar fibrinólise imediata; Após 24h: ICP primária obrigatória para todos.",
+        B: "Entre 12 e 24 horas: realizar estratégia invasiva se houver sintomas isquêmicos persistentes, instabilidade hemodinâmica ou arritmias graves. Após 24 horas: não há benefício demonstrado na realização de ICP de rotina em pacientes assintomáticos e hemodinamicamente estáveis.",
+        C: "Após 12 horas nunca se realiza cateterismo cardíaco, mesmo com choque cardiogênico.",
+        D: "Entre 12 e 24h: aguardar 72h; Após 24h: administrar alteplase em meia dose."
+      },
+      answer: "B",
+      explanation: "No IAMCSST entre 12 e 24h, indica-se estratégia invasiva na presença de sintomas isquêmicos persistentes, instabilidade hemodinâmica ou arritmias graves. Após 24h, não há benefício demonstrado na ICP de rotina em pacientes assintomáticos e estáveis."
+    },
+    {
+      id: 35,
+      topic: "Eletrocardiograma (ECG)",
+      question: "Um paciente dá entrada com dor torácica típica e o ECG de 12 derivações mostra infradesnivelamento proeminente do segmento ST de V1 a V3. Como esse achado deve ser interpretado e manejado?",
+      options: {
+        A: "Como angina estável de baixo risco, liberando o paciente com prescrição de nitrato sublingual.",
+        B: "Como padrão eletrocardiográfico equivalente a STEMI (espelho de supra de ST em parede posterior V7-V9), devendo ser manejado como supra de ST (reperfusão imediata) e complementado com V7-V9.",
+        C: "Como pericardite aguda difusa, tratando com anti-inflamatório não esteroidal em dose alta.",
+        D: "Como alteração inespecífica da repolarização sem significado isquêmico agudo."
+      },
+      answer: "B",
+      explanation: "O infra de ST em V1 a V3 é um equivalente de STEMI que representa imagem em espelho de supradesnivelamento de ST na parede posterior (V7 a V9), devendo ser manejado como supra de ST."
+    },
+    {
+      id: 36,
+      topic: "Manejo Farmacológico Integrado",
+      question: "Um paciente com IAMCSST inferior evolui com hipotensão (PAS 82 mmHg) e suspeita de acometimento de Ventrículo Direito (VD). Qual conduta farmacológica deve ser rigorosamente evitada?",
+      options: {
+        A: "Ácido Acetilsalicílico (AAS) 300 mg mastigado.",
+        B: "Nitratos (Nitroglicerina / Isossorbida), pois são contraindicados na hipotensão e na suspeita de Infarto de VD.",
+        C: "Estatina de alta potência (Atorvastatina).",
+        D: "Derivações eletrocardiográficas direitas V3R e V4R."
+      },
+      answer: "B",
+      explanation: "Os nitratos reduzem a pré-carga e podem causar colapso hemodinâmico grave no Infarto de VD e na hipotensão (PAS < 90 mmHg), sendo formalmente contraindicados nessas condições."
+    },
+    {
+      id: 37,
+      topic: "Manejo Farmacológico Integrado",
+      question: "Paciente de 74 anos dá entrada com dor torácica típica de 30 minutos de duração, FC = 116 bpm, PAS = 112 mmHg e sinais iniciais de congestão pulmonar. Qual é a conduta correta quanto ao uso de betabloqueador na admissão?",
+      options: {
+        A: "Administrar Metoprolol 5 mg IV em bólus repetidos até FC < 60 bpm.",
+        B: "Não administrar betabloqueador no momento, pois o paciente apresenta múltiplos preditores de risco para choque cardiogênico (idade > 70 anos, FC > 110 bpm, PAS < 120 mmHg) e sinais de insuficiência cardíaca.",
+        C: "Iniciar Atenolol 100 mg VO imediatamente antes de avaliar a pressão arterial.",
+        D: "Associar betabloqueador venoso com nitroprussiato de sódio."
+      },
+      answer: "B",
+      explanation: "Idade > 70 anos, FC > 110 bpm, PAS < 120 mmHg e sinais de insuficiência cardíaca são contraindicações formais ao início precoce de betabloqueadores na SCA pelo alto risco de precipitar choque cardiogênico."
+    },
+    {
+      id: 38,
+      topic: "Antiagregação e Terapias Adjuvantes",
+      question: "Um paciente de 78 anos com IAMCSST é atendido em uma unidade sem hemodinâmica, com tempo estimado de transferência > 150 minutos, optando-se por terapia fibrinolítica (Tenecteplase). Qual deve ser a dose de Clopidogrel administrada?",
+      options: {
+        A: "600 mg VO em dose de ataque.",
+        B: "300 mg VO em dose de ataque.",
+        C: "75 mg VO (sem dose de ataque), pois o paciente tem idade ≥ 75 anos e será submetido à fibrinólise.",
+        D: "O Clopidogrel é contraindicado em pacientes acima de 75 anos."
+      },
+      answer: "C",
+      explanation: "No protocolo de fibrinólise, pacientes com idade < 75 anos recebem ataque de 300 mg de Clopidogrel, enquanto pacientes com idade ≥ 75 anos recebem apenas 75 mg (sem dose de ataque) devido ao risco hemorrágico."
+    },
+    {
+      id: 39,
+      topic: "Escores de Risco",
+      question: "Um paciente chega ao pronto-socorro com dor torácica atípica, tem 48 anos, sem fatores de risco conhecidos, ECG normal, sem história de DAC prévia e troponina negativa. Seu escore HEART totaliza 2 pontos. Qual é a conduta recomendada?",
+      options: {
+        A: "Internação em UTI coronariana e cateterismo imediato em < 2 horas.",
+        B: "Alta hospitalar segura, pois o escore HEART de 0-3 pontos indica baixo risco (desde que troponina negativa, ECG sem isquemia e sem DAC prévia).",
+        C: "Administrar fibrinolítico profilático antes da alta.",
+        D: "Manter internado por 7 dias para repetir troponina diariamente."
+      },
+      answer: "B",
+      explanation: "No Escore HEART, pontuação de 0 a 3 classifica o paciente como baixo risco e permite alta segura quando associada a troponina negativa, ECG sem sinais de isquemia e ausência de doença arterial coronariana (DAC) prévia."
+    },
+    {
+      id: 40,
+      topic: "Classificação do IAM e Clínica",
+      question: "Sobre a classificação tripartite da dor torácica na avaliação inicial, quais são as três categorias descritas no protocolo?",
+      options: {
+        A: "Dor Leve, Dor Moderada e Dor Intensa.",
+        B: "Dor Cardíaca (Isquêmica), Dor Possivelmente Cardíaca (inconclusiva na avaliação inicial) e Dor Não Cardíaca (digestiva, musculoesquelética, pulmonar).",
+        C: "Dor Aguda, Dor Subaguda e Dor Crônica.",
+        D: "Dor Anterior, Dor Posterior e Dor Lateral."
+      },
+      answer: "B",
+      explanation: "A classificação tripartite divide a dor torácica em: (1) Dor Cardíaca (Isquêmica), (2) Dor Possivelmente Cardíaca (inconclusiva na avaliação inicial) e (3) Dor Não Cardíaca (digestiva, musculoesquelética, pulmonar)."
+    }
+  ];
+
+  // Estado do aplicativo
+  let userAnswers = {};
+
+  const quizContainer = document.getElementById('quiz-container');
+  const topicFilter = document.getElementById('topic-filter');
+  const statusFilter = document.getElementById('status-filter');
+  const searchInput = document.getElementById('search-input');
+  const resetBtn = document.getElementById('reset-btn');
+  const emptyState = document.getElementById('empty-state');
+  const visibleCountEl = document.getElementById('visible-count');
+
+  const statAnsweredEl = document.getElementById('stat-answered');
+  const statCorrectEl = document.getElementById('stat-correct');
+  const statWrongEl = document.getElementById('stat-wrong');
+  const statPercentEl = document.getElementById('stat-percent');
+
+  function populateTopics() {
+    const topics = [...new Set(questionsData.map(q => q.topic))];
+    topics.forEach(topic => {
+      const option = document.createElement('option');
+      option.value = topic;
+      option.textContent = topic;
+      topicFilter.appendChild(option);
+    });
+  }
+
+  function updateScoreboard() {
+    const answeredIds = Object.keys(userAnswers);
+    const totalAnswered = answeredIds.length;
+    let correctCount = 0;
+
+    answeredIds.forEach(id => {
+      const q = questionsData.find(item => item.id === Number(id));
+      if (q && userAnswers[id] === q.answer) {
+        correctCount++;
+      }
+    });
+
+    const wrongCount = totalAnswered - correctCount;
+    const percent = totalAnswered > 0 ? Math.round((correctCount / totalAnswered) * 100) : 0;
+
+    statAnsweredEl.textContent = totalAnswered;
+    statCorrectEl.textContent = correctCount;
+    statWrongEl.textContent = wrongCount;
+    statPercentEl.textContent = `${percent}%`;
+  }
+
+  function renderQuestions() {
+    const selectedTopic = topicFilter.value;
+    const selectedStatus = statusFilter.value;
+    const searchTerm = searchInput.value.trim().toLowerCase();
+
+    quizContainer.innerHTML = '';
+    let shownCount = 0;
+
+    questionsData.forEach(q => {
+      const userChoice = userAnswers[q.id];
+      const isAnswered = Boolean(userChoice);
+      const isCorrect = isAnswered && userChoice === q.answer;
+
+      if (selectedTopic !== 'all' && q.topic !== selectedTopic) return;
+      if (selectedStatus === 'unanswered' && isAnswered) return;
+      if (selectedStatus === 'correct' && !isCorrect) return;
+      if (selectedStatus === 'wrong' && (!isAnswered || isCorrect)) return;
+
+      if (searchTerm) {
+        const haystack = `${q.question} ${q.topic} ${Object.values(q.options).join(' ')} ${q.explanation}`.toLowerCase();
+        if (!haystack.includes(searchTerm)) return;
+      }
+
+      shownCount++;
+
+      const card = document.createElement('div');
+      card.className = 'question-card';
+      card.id = `question-${q.id}`;
+
+      const meta = document.createElement('div');
+      meta.className = 'question-meta';
+      meta.innerHTML = `
+        <span class="q-number">Questão ${String(q.id).padStart(2, '0')} de ${questionsData.length}</span>
+        <span class="q-topic">${q.topic}</span>
+      `;
+
+      const text = document.createElement('div');
+      text.className = 'q-text';
+      text.textContent = q.question;
+
+      const optionsList = document.createElement('div');
+      optionsList.className = 'options-list';
+
+      ['A', 'B', 'C', 'D'].forEach(letter => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'option-btn';
+
+        if (isAnswered) {
+          btn.disabled = true;
+          if (letter === q.answer) {
+            btn.classList.add('correct');
+          } else if (letter === userChoice) {
+            btn.classList.add('wrong');
+          }
+        }
+
+        btn.innerHTML = `
+          <span class="opt-letter">${letter}</span>
+          <span>${q.options[letter]}</span>
+        `;
+
+        btn.addEventListener('click', () => handleAnswer(q.id, letter));
+        optionsList.appendChild(btn);
+      });
+
+      const feedback = document.createElement('div');
+      feedback.className = 'feedback-box';
+      if (isAnswered) {
+        feedback.classList.add('show', isCorrect ? 'is-correct' : 'is-wrong');
+        feedback.innerHTML = `
+          <div class="feedback-title">
+            ${isCorrect ? '✔ Resposta Correta!' : `✖ Resposta Incorreta! Você marcou (${userChoice}) — Gabarito: (${q.answer})`}
+          </div>
+          <div class="feedback-explanation"><strong>Comentário:</strong> ${q.explanation}</div>
+        `;
+      }
+
+      card.appendChild(meta);
+      card.appendChild(text);
+      card.appendChild(optionsList);
+      card.appendChild(feedback);
+      quizContainer.appendChild(card);
+    });
+
+    visibleCountEl.textContent = `Exibindo ${shownCount} de ${questionsData.length} questões`;
+    emptyState.style.display = shownCount === 0 ? 'block' : 'none';
+  }
+
+  function handleAnswer(questionId, chosenLetter) {
+    if (userAnswers[questionId]) return;
+    userAnswers[questionId] = chosenLetter;
+    updateScoreboard();
+    renderQuestions();
+  }
+
+  resetBtn.addEventListener('click', () => {
+    if (Object.keys(userAnswers).length === 0) return;
+    if (confirm('Deseja zerar todas as suas respostas e reiniciar o placar?')) {
+      userAnswers = {};
+      updateScoreboard();
+      renderQuestions();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  });
+
+  topicFilter.addEventListener('change', renderQuestions);
+  statusFilter.addEventListener('change', renderQuestions);
+  searchInput.addEventListener('input', renderQuestions);
+
+  populateTopics();
+  updateScoreboard();
+  renderQuestions();
+</script>
+</body>
+</html>
